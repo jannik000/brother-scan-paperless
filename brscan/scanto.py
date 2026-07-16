@@ -1,5 +1,7 @@
 import subprocess
 import os
+import sys
+import traceback
 import shutil
 import datetime
 import wand.image
@@ -56,12 +58,27 @@ def scanto(func, options):
         subprocess.call(cmd)
         pnmfiles = []
         pdffiles = []
-        for pnmfile in sorted(glob.glob(os.path.join(tmp, 'scan_%s_*.pnm'%(now))), 
-				key=os.path.getmtime):
+        for pnmfile in sorted(glob.glob(os.path.join(tmp, 'scan_%s_*.pnm'%(now))),
+                                key=os.path.getmtime):
             pdffile = '%s.pdf'%(pnmfile[:-4])
-            pnmtopdf(pnmfile, pdffile, options['resolution'])
-            pnmfiles.append(pnmfile)
-            pdffiles.append(pdffile)
+
+            try:
+                pnmtopdf(pnmfile, pdffile, options.get('resolution'))
+                pnmfiles.append(pnmfile)
+                pdffiles.append(pdffile)
+            except Exception as e:
+                print("Skipping broken scan page %s: %s" % (pnmfile, e), file=sys.stderr)
+                traceback.print_exc()
+
+                try:
+                    os.remove(pnmfile)
+                except OSError:
+                    pass
+
+        if not pdffiles:
+            print("No valid pages scanned; aborting PDF creation", file=sys.stderr)
+            return
+
         outputfile = os.path.join(tmp, 'scan_%s.pdf'%(now))
         cmd = ['pdfunite'] + pdffiles + [outputfile]
         print('# ' + ' '.join(cmd))

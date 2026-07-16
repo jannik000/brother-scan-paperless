@@ -1,6 +1,6 @@
 import socket
 import subprocess
-
+import traceback
 from .scanto import scanto
 
 def launch(args, config):
@@ -30,6 +30,10 @@ def launch(args, config):
             for menu_user, menu_entry in menu_users.items():
                 menu_func = menu_func.upper()
                 if msgd['FUNC'] == menu_func and msgd['USER'] == menu_user:
-                    scanto(msgd['FUNC'], menu_entry)
+                    try:
+                        scanto(msgd['FUNC'], menu_entry)
+                    except Exception:
+                        print("Scan failed; keeping listener alive")
+                        traceback.print_exc()
                     break
         server_socket.recvfrom(len(data))
