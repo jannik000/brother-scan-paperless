@@ -33,7 +33,7 @@ def launch(args, config):
         for user, entry in users.items():
             print('Entry:', func.upper(), user, entry)
     while(1):
-        print('Advertising to scanner')
+        pass  # noisy heartbeat log removed
         appnum = 1
         for func, users in config['menu'].items():
             for user, entry in users.items():
