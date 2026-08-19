@@ -1,0 +1,7 @@
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+# Only real bugs (syntax errors, unused/undefined names) - the existing code
+# predates any style convention and a full ruleset would be all noise.
+select = ["E9", "F"]

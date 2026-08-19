@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install ImageMagick (Wand runtime dependency)
+        run: sudo apt-get update -q && sudo apt-get install -q -y imagemagick
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt -e .
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Test
+        run: pytest
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build sdist
+        run: python3 setup.py build sdist
+
+      - name: Build placeholder brscan4 deb
+        run: |
+          # The real Brother .deb is proprietary and can't be committed or
+          # downloaded automatically; build a no-op stand-in package so the
+          # Dockerfile's other layers (base image, apt packages, pip
+          # install, ImageMagick policy) are still exercised on every push.
+          mkdir -p pkg/DEBIAN
+          printf 'Package: brscan4\nVersion: 0.0.0-0\nArchitecture: amd64\nMaintainer: CI <ci@example.invalid>\nDescription: CI placeholder, not the real Brother driver\n' > pkg/DEBIAN/control
+          dpkg-deb --build pkg brscan4-0.0.0-0.amd64.deb
+
+      - name: Build image
+        run: docker build --build-arg BRSCAN_DEB=brscan4-0.0.0-0.amd64.deb -t brscan .

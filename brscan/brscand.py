@@ -11,8 +11,6 @@ import argparse
 import socket
 import yaml
 
-from yaml import CLoader
-
 # Private libs
 from . import listen
 from . import snmp
@@ -53,7 +51,7 @@ def main():
     # Loading global configuration
     try:
         with open(args.config) as configfile:
-            config = yaml.load(configfile, Loader=CLoader)
+            config = yaml.safe_load(configfile)
     except FileNotFoundError as e:
         print('Error: %s: %s' % (e.strerror, e.filename))
         sys.exit(1)

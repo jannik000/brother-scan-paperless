@@ -11,8 +11,9 @@ setuptools.setup(
     description='Service for (some) network scanners from Brother Inc.',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/esben/brother-scan',
+    url='https://github.com/jannik000/brother-scan-paperless',
     packages=setuptools.find_packages(),
+    python_requires='>=3.13',
     classifiers=(
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
