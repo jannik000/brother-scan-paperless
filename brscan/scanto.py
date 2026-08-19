@@ -40,8 +40,8 @@ def scanto(func, options):
             options['dir'] = '/tmp'
         dst = options['dir']
 
-    uid = options['uid']
-    gid = options['gid']
+    uid = int(os.environ.get('PUID', 1000))
+    gid = int(os.environ.get('PGID', 1000))
     tmp = '/tmp'
 
     os.makedirs(dst, exist_ok=True)

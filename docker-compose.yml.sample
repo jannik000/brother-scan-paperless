@@ -16,3 +16,7 @@ services:
       - SCANNER_IP=10.0.0.50
       - ADVERTISE_IP=10.0.0.10
       - BIND_IP=0.0.0.0
+      # uid:gid that scanned files are written as, e.g. to match your
+      # Paperless consume dir's ownership
+      - PUID=1000
+      - PGID=1000

@@ -1,9 +1,18 @@
 # brother-scan-paperless
 
+Maintained by [Jannik000](https://github.com/jannik000/brother-scan-paperless).
+
+> **2026-08-19 update:** dependencies and the Docker base image were modernized (Python 3.13,
+> current `pysnmp`/`PyYAML`/`Wand`, Debian trixie) with AI pair-programming (Claude/vibecoded) —
+> including a rewrite of the SNMP registration code, a fix for `scanadf` no longer being
+> packaged in current Debian, and a real end-to-end test against a physical MFC-L2710DN. See the
+> `modernize-dependencies` branch/PR for details.
+
 Some quick modifications to the brother-scan docker to suit my needs to scan from my Brother printer directly to 
 the Consume dir for Paperless. I had to change a few things
 
-- It needed to set proper uid:gid. Hacky but they must be specified in brother-scan.yaml now
+- It needs to write scanned files with a specific uid:gid (to match the Paperless consume dir's
+  ownership) — set via the `PUID`/`PGID` environment variables
 - The temp files needed to be processed somewhere other than the consume dir, so paperless didn't try to pick them 
 up
 - Multipage scans were being assembled in a random order but the filenames are sequential, so forced a sort
@@ -59,9 +68,13 @@ To run brscand with the following setup:
 docker run --rm \
   -v $HOME/brscan:/output -v $(pwd)/brother-scan.yaml:/brother-scan.yaml \
   -e SCANNER_MODEL=MFC-L2700DW -e SCANNER_IP=192.168.0.10 \
-  -e ADVERTISE_IP=192.168.0.100 -p 54925:54925/udp \
+  -e ADVERTISE_IP=192.168.0.100 -e PUID=1000 -e PGID=1000 \
+  -p 54925:54925/udp \
   brscan
 ```
+
+`PUID`/`PGID` control the uid:gid that scanned files are written as (e.g. to match your Paperless
+consume dir's ownership) — default to `1000:1000` if unset.
 
 ## Running on host OS
 
@@ -78,6 +91,7 @@ required Python modules.
 In order for this to work, host OS must have the following installed (assuming
 Debian)
 
+* Python 3.13+
 * sane-utils package (`scanimage` command, used for both single-page and ADF/batch scanning)
 * poppler-utils package (`pdfunite` command)
 * libusb-0.1-4 package (`libusb-0.1.so.4` library)
@@ -108,7 +122,7 @@ Now you just need to run the brscand daemon.  Example running on host with IP
 192.168.0.10 and scanner with IP address 192.168.0.100:
 
 ```sh
-brscand 192.168.0.100 192.168.0.10
+PUID=1000 PGID=1000 brscand 192.168.0.100 192.168.0.10
 ```
 
 ## Uselinks

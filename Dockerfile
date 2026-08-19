@@ -1,6 +1,6 @@
 FROM python:3.13-slim-trixie
 ARG BRSCAN_DEB=brscan4-0.4.11-1.amd64.deb
-LABEL maintainer="Esben Haabendal, esben@haabendal.dk"
+LABEL maintainer="Jannik000 (https://github.com/jannik000/brother-scan-paperless)"
 
 # Without this, print() output sits in Python's stdout buffer and never
 # reaches "docker logs" since the container has no TTY.
