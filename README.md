@@ -76,6 +76,34 @@ docker run --rm \
 `PUID`/`PGID` control the uid:gid that scanned files are written as (e.g. to match your Paperless
 consume dir's ownership) — default to `1000:1000` if unset.
 
+### Deploying to a target without build tooling (e.g. a NAS)
+
+If your deployment target (Synology Container Manager, etc.) can only run pre-built images and
+can't build from a Dockerfile itself, build the image somewhere that has Docker and Python (your
+workstation, a VM, WSL, ...) and ship the finished image instead:
+
+```sh
+scripts/build-image.sh brscan4-0.4.11-1.amd64.deb
+```
+
+This builds the sdist and image exactly like the steps above, then exports it to
+`brscan-image-<git commit>.tar.gz` (also tags the image `brscan:<git commit>` locally, so you can
+tell which build is actually running). Transfer that file to the target and load it — on Synology,
+via **Container Manager → Image → Add → Add From File**; on a host with Docker CLI access,
+`docker load < brscan-image-*.tar.gz`.
+
+Then point your `docker-compose.yml` at the loaded image instead of building:
+
+```yaml
+services:
+  brother-scan:
+    image: brscan:latest   # instead of a `build:` block
+    ...
+```
+
+Since the target never sees the Dockerfile or the Brother `.deb`, this also works if you don't
+want that proprietary file anywhere near the deployment target's filesystem.
+
 ## Running on host OS
 
 If you for some reason want to run it directly on your Linux host OS, that
