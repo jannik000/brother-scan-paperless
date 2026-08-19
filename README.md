@@ -5,8 +5,8 @@ Maintained by [Jannik000](https://github.com/jannik000/brother-scan-paperless).
 > **2026-08-19 update:** dependencies and the Docker base image were modernized (Python 3.13,
 > current `pysnmp`/`PyYAML`/`Wand`, Debian trixie) with AI pair-programming (Claude/vibecoded) —
 > including a rewrite of the SNMP registration code, a fix for `scanadf` no longer being
-> packaged in current Debian, and a real end-to-end test against a physical MFC-L2710DN. See the
-> `modernize-dependencies` branch/PR for details.
+> packaged in current Debian, and a real end-to-end test against a physical MFC-L2710DN. See
+> [PR #1](https://github.com/jannik000/brother-scan-paperless/pull/1) for details.
 
 Some quick modifications to the brother-scan docker to suit my needs to scan from my Brother printer directly to 
 the Consume dir for Paperless. I had to change a few things
@@ -142,7 +142,8 @@ scanner with IP address 192.168.0.100:
 brsaneconfig4 -a name="Brother" model="MFC-L2700DW" ip="192.168.0.100"
 ```
 
-Edit `brother-scan.yaml` according to your preferences.
+Edit `brother-scan.yaml` according to your preferences. The uid:gid that scanned files are
+written as isn't set there though — that's the `PUID`/`PGID` environment variables shown below.
 
 ### Run
 
