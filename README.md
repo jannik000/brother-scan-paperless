@@ -28,7 +28,7 @@ provided here.
 * Docker installed.
 * The latest proprietary brscan4 deb from Brother
   * I had to go through their 'Downloads' page for my device (https://support.brother.com/g/b/productsearch.aspx?c=us&lang=en&content=dl)
-  * The Dockerfile defaults to the deb name `brscan4-0.4.9-1.amd64.deb`
+  * The Dockerfile defaults to the deb name `brscan4-0.4.11-1.amd64.deb`
 
 ### Build image
 
@@ -39,7 +39,7 @@ Adapt `BRSCAN_DEB` if the version has changed.
 
 ```
 python3 setup.py build sdist
-docker build -t brscan --build-arg BRSCAN_DEB="brscan4-0.4.9-1.amd64.deb" .
+docker build -t brscan --build-arg BRSCAN_DEB="brscan4-0.4.11-1.amd64.deb" .
 ```
 
 ### Configuration
@@ -78,7 +78,7 @@ required Python modules.
 In order for this to work, host OS must have the following installed (assuming
 Debian)
 
-* sane and sane-utils packages (`scanimage` and `scanadf` commands)
+* sane-utils package (`scanimage` command, used for both single-page and ADF/batch scanning)
 * poppler-utils package (`pdfunite` command)
 * libusb-0.1-4 package (`libusb-0.1.so.4` library)
 * brscan4 (brscan4-0.4.4-1.amd64.deb can be fetched from Brother)

@@ -51,8 +51,11 @@ def scanto(func, options):
     adf = options.pop('adf', False)
 
     if adf:
-        cmd = ['scanadf',
-               '--output-file', os.path.join(tmp, 'scan_%s_%%d.pnm'%(now))]
+        # scanadf (package sane-frontends) is no longer packaged in current
+        # Debian; scanimage's own --batch mode scans the ADF until empty
+        # and writes one file per page, same as scanadf did.
+        cmd = ['scanimage',
+               '--batch=%s'%(os.path.join(tmp, 'scan_%s_%%d.pnm'%(now)))]
         add_scan_options(cmd, options)
         print('# ' + ' '.join(cmd))
         subprocess.call(cmd)

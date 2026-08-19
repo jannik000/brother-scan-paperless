@@ -1,6 +1,10 @@
-FROM python:3.9
-ARG BRSCAN_DEB=brscan4-0.4.9-1.amd64.deb
-MAINTAINER Esben Haabendal, esben@haabendal.dk
+FROM python:3.13-slim-trixie
+ARG BRSCAN_DEB=brscan4-0.4.11-1.amd64.deb
+LABEL maintainer="Esben Haabendal, esben@haabendal.dk"
+
+# Without this, print() output sits in Python's stdout buffer and never
+# reaches "docker logs" since the container has no TTY.
+ENV PYTHONUNBUFFERED=1
 
 # This is where the scan output will be written to
 VOLUME /output
@@ -8,9 +12,12 @@ VOLUME /output
 # This must be mapped to ${ADVERTISE_IP}:54925
 EXPOSE 54925/udp
 
-# Install required Debian packages
+# Install required Debian packages.
+# "sane" (metapackage) and "sane-frontends" (scanadf) no longer exist in
+# current Debian; sane-utils alone provides scanimage, which now also
+# covers ADF scanning via --batch (see brscan/scanto.py).
 RUN apt-get update -q \
- && apt-get install -q -y sane sane-utils poppler-utils libusb-0.1-4 \
+ && apt-get install -q -y sane-utils poppler-utils libusb-0.1-4 imagemagick \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
@@ -30,9 +37,12 @@ RUN mkdir /usr/lib/sane \
 COPY dist/brscan-0.0.1.tar.gz /tmp/
 RUN pip install --no-binary :all: /tmp/brscan-*.tar.gz
 
-# Disable ImageMagick policies for now
-RUN rm /etc/ImageMagick-6/policy.xml
+# Allow the PDF coder (only), which is disabled by ImageMagick's default
+# policy; everything else in the default policy (resource limits, other
+# blocked coders) stays intact since we only ever read PNM and write PDF.
+RUN policy=$(ls /etc/ImageMagick-*/policy.xml) \
+ && sed -i '/pattern="PDF"/s/rights="none"/rights="read|write"/' "$policy"
 
 # Add run script and set it as default command
 ADD run.sh /
-CMD /run.sh
+CMD ["/run.sh"]
