@@ -1,0 +1,26 @@
+# Isolated smoke-test stack for images pushed by scripts/push-image.sh, run
+# on this dev-VM before scripts/promote-image.sh moves the floating :latest
+# tag that production pulls.
+#
+# SCANNER_IP/ADVERTISE_IP point at TEST-NET-1 (RFC 5737, guaranteed
+# non-routable) on purpose: this only checks that the container starts
+# cleanly, not that scanning works against real hardware - pointing it at
+# the real scanner would fight the production container for the physical
+# scan button. See deploy/dev-vm/smoke-test.sh.
+services:
+  brother-scan-dev:
+    image: ghcr.io/jannik000/brother-scan-paperless:${IMAGE_TAG:?set IMAGE_TAG to the tag to test, e.g. a short sha}
+    container_name: brother-scan-dev-smoketest
+    ports:
+      - "54935:54925/udp"
+    volumes:
+      - ./output:/output
+      - ./menu.yaml:/brother-scan.yaml:ro
+    environment:
+      - SCANNER_NAME=Dev-VM Smoketest
+      - SCANNER_MODEL=MFC-L2710DN
+      - SCANNER_IP=192.0.2.1
+      - ADVERTISE_IP=192.0.2.2
+      - BIND_IP=0.0.0.0
+      - PUID=1000
+      - PGID=1000

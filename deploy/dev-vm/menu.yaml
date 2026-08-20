@@ -1,0 +1,10 @@
+# Minimal menu config for the dev-VM smoke test - never actually reached
+# over SNMP since SCANNER_IP is unreachable by design (see compose file).
+# Just needs to be valid enough for brscand to load at startup.
+menu:
+  file:
+    Standard:
+      dir: /output/scan1
+      resolution: 200
+      width: 210
+      height: 297
